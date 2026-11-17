@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Цифровой Щит | Кибербезопасность</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        /* --- БАЗОВЫЕ ПЕРЕМЕННЫЕ --- */
+        :root {
+            --bg-dark: #050508;
+            --bg-card: rgba(20, 20, 25, 0.8);
+            --text-main: #f8fafc;
+            --text-muted: #8b92a5;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --nav-bg: rgba(5, 5, 8, 0.95);
+            --border-color: rgba(255, 255, 255, 0.05);
+            
+            --gold-glow: rgba(212, 175, 55, 0.15);
+            --gold-border: rgba(212, 175, 55, 0.4);
+            
+            --tg-bg: #17212b;
+            --tg-header: #242f3d;
+            --tg-msg-in: #182533;
+            --tg-msg-out: #2b5278;
+        }
+
+        /* --- СВЕТЛАЯ ТЕМА --- */
+        body.light-theme {
+            --bg-dark: #f0f4f8;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --nav-bg: rgba(240, 244, 248, 0.95);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --gold-glow: rgba(212, 175, 55, 0.1);
+            --gold-border: rgba(212, 175, 55, 0.3);
+            --tg-bg: #e3e9f0;
+            --tg-header: #ffffff;
+            --tg-msg-in: #ffffff;
+            --tg-msg-out: #3b82f6;
+            background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1), transparent 30%),
+                              radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1), transparent 30%);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05), transparent 30%),
+                              radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05), transparent 30%);
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        /* --- ЭКРАН ВЫБОРА ТЕМЫ --- */
+        .theme-selector-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--bg-dark); z-index: 10000;
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
+            transition: opacity 0.5s, visibility 0.5s;
+            padding: 40px 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .theme-selector-screen.hidden {
+            opacity: 0; visibility: hidden;
+        }
+        .theme-selector-screen h2 {
+            font-size: 2rem; margin-bottom: 10px; font-weight: 900; text-align: center; margin-top: 20px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .theme-selector-screen p { color: var(--text-muted); margin-bottom: 30px; font-size: 1rem; text-align: center; }
+        
+        .theme-cards { 
+            display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; 
+            padding-bottom: 40px;
+        }
+        
+        .theme-card {
+            width: 100%; max-width: 300px; min-height: 320px; border-radius: 20px; cursor: pointer;
+            border: 2px solid var(--border-color); background: var(--bg-card);
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            transition: 0.3s; position: relative; overflow: hidden;
+            padding: 30px 20px;
+        }
+        .theme-card:hover { transform: translateY(-5px); }
+        
+        .theme-card.dark-option { border-color: var(--accent-blue); box-shadow: 0 0 25px rgba(59, 130, 246, 0.4); }
+        .theme-card.dark-option:hover { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+        
+        .theme-card.light-option { border-color: #cbd5e1; }
+        .theme-card.light-option:hover { border-color: var(--accent-purple); box-shadow: 0 0 25px rgba(139, 92, 246, 0.3); }
+        
+        .theme-icon { font-size: 3.5rem; margin-bottom: 15px; }
+        .theme-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+        
+        .theme-desc { 
+            font-size: 0.9rem; color: var(--text-muted); text-align: center; padding: 0; margin-bottom: 60px; flex-grow: 1;
+        }
+        
+        .recommend-badge {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            color: white; padding: 8px 20px; border-radius: 20px; 
+            font-size: 0.8rem; font-weight: 700;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+        }
+
+        /* --- ОКНО ТУТОРИАЛА (ГАЙД) --- */
+        .tutorial-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+            z-index: 20000; display: none; justify-content: center; align-items: center;
+            padding: 20px;
+        }
+        .tutorial-window {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-blue);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+            border-radius: 20px;
+            width: 100%; max-width: 400px;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            animation: tgFadeIn 0.3s ease;
+        }
+        .tutorial-icon {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; margin: 0 auto 20px;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        .tutorial-title { font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+        .tutorial-text { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 30px; min-height: 80px; }
+        
+        .tutorial-buttons { display: flex; gap: 10px; justify-content: center; }
+        .tutorial-btn {
+            padding: 10px 20px; border-radius: 10px; font-weight: 600; font-family: inherit; font-size: 0.95rem;
+            cursor: pointer; transition: 0.3s; border: none;
+        }
+        .tutorial-btn.primary { background: var(--accent-blue); color: white; }
+        .tutorial-btn.primary:hover { background: #2563eb; }
+        .tutorial-btn.secondary { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); }
+        .tutorial-btn.secondary:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+        
+        .tutorial-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .tutorial-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(128,128,128,0.3); transition: 0.3s; }
+        .tutorial-dot.active { background: var(--accent-blue); transform: scale(1.2); }
+
+        /* --- НАВИГАЦИЯ (АДАПТИВ) --- */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 0;
+            transition: background 0.4s;
+        }
+        .nav-content {
+            max-width: 1100px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+        }
+        .logo { font-weight: 900; font-size: 1.2rem; letter-spacing: 1px; color: var(--accent-blue); text-shadow: 0 0 10px rgba(59,130,246,0.5); display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        nav ul { display: flex; list-style: none; gap: 15px; flex-wrap: wrap; align-items: center; }
+        nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.9em; transition: 0.3s; cursor: pointer; position: relative; z-index: 2; }
+        nav a:hover { color: var(--accent-blue); text-shadow: 0 0 8px rgba(59,130,246,0.6); }
+
+        .theme-toggle-btn {
+            background: transparent; border: 1px solid var(--border-color); color: var(--text-main);
+            width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; font-size: 1.1rem; transition: 0.3s; flex-shrink: 0;
+        }
+        .theme-toggle-btn:hover { background: rgba(255,255,255,0.1); }
+
+        /* --- HERO --- */
+        header {
+            min-height: 90vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 120px 20px 40px;
+        }
+        .hero-badge {
+            background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--accent-blue); padding: 8px 20px; border-radius: 50px;
+            font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px;
+        }
+        h1 { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 900; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
+        .gradient-text {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        header p { font-size: 1rem; color: var(--text-muted); max-width: 700px; margin-bottom: 30px; }
+        
+        /* --- КНОПКИ --- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            color: white; padding: 14px 30px; text-decoration: none; border-radius: 50px;
+            font-weight: 700; font-size: 1rem; border: none; cursor: pointer;
+            transition: 0.3s; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px -5px rgba(139, 92, 246, 0.7); }
+
+        /* --- КОНТЕЙНЕР И СЕКЦИИ --- */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+        section { padding: 50px 0; border-bottom: 1px solid var(--border-color); transition: border-color 0.4s; }
+        h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .section-desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; max-width: 800px; }
+
+        /* --- СТАТИСТИКА --- */
+        .stats-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-box {
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.1) 0%, var(--bg-card) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 16px; padding: 20px; text-align: center;
+            transition: 0.4s;
+        }
+        .stat-number { font-size: 2.2rem; font-weight: 900; color: var(--accent-blue); line-height: 1; margin-bottom: 10px; text-shadow: 0 0 20px rgba(59,130,246,0.4); }
+        .stat-text { font-size: 0.9rem; color: var(--text-main); font-weight: 500; }
+
+        /* --- СЕТКИ КАРТОЧЕК --- */
+        .grid-2, .grid-4 { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 20px;
+            transition: 0.3s; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .glass-card:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.3); }
+
+        .icon-box {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 15px; font-size: 1.2rem;
+        }
+        .icon-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .icon-info { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); border: 1px solid rgba(59, 130, 246, 0.2); }
+        .icon-success { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+
+        .card-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+        .card-text { color: var(--text-muted); font-size: 0.85rem; }
+        .card-text b { color: var(--text-main); }
+
+        /* --- ШАГИ (АЛГОРИТМ) --- */
+        .step-card {
+            display: flex; align-items: flex-start; gap: 12px; padding: 15px;
+            background: var(--bg-card); border-radius: 15px; border: 1px solid var(--border-color); margin-bottom: 12px;
+            transition: 0.4s;
+        }
+        .step-num {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white; min-width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 0.9rem; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+            flex-shrink: 0;
+        }
+
+        /* --- ПРАКТИКА --- */
+        .practice-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .practice-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 300px;
+            flex-shrink: 0;
+        }
+        .practice-card:hover { transform: translateY(-3px); border-color: rgba(59, 130, 246, 0.3); }
+        .practice-icon { font-size: 1.8rem; margin-bottom: 10px; }
+        .practice-title { font-size: 1rem; font-weight: 700; margin-bottom: 5px; }
+        .practice-desc { color: var(--text-muted); font-size: 0.8rem; }
+
+        /* --- МОДАЛЬНОЕ ОКНО ТРЕНАЖЕРОВ --- */
+        .module-window {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            animation: fadeIn 0.4s ease;
+            transition: 0.4s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .back-btn {
+            background: transparent; color: var(--text-muted); border: 1px solid var(--border-color);
+            padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.85rem; margin-bottom: 15px; transition: 0.3s;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
+
+        .action-btn {
+            padding: 12px 15px; background: rgba(255, 255, 255, 0.03); color: var(--text-main);
+            border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer;
+            font-size: 0.9rem; font-family: inherit; transition: 0.3s; text-align: left; width: 100%;
+        }
+        .action-btn:hover { background: rgba(255, 255, 255, 0.08); }
+
+        /* --- СИМУЛЯТОР В СТИЛЕ TELEGRAM --- */
+        .tg-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+            z-index: 2000; display: none; justify-content: center; align-items: center;
+            padding: 10px;
+        }
+        .tg-window {
+            width: 100%; max-width: 450px; height: 85vh; max-height: 700px;
+            background: var(--tg-bg); border-radius: 15px; overflow: hidden;
+            display: flex; flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: tgFadeIn 0.3s ease;
+            transition: background 0.4s;
+        }
+        @keyframes tgFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        .tg-header {
+            background: var(--tg-header); padding: 12px 15px;
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.4s;
+        }
+        .tg-avatar {
+            width: 35px; height: 35px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 1rem; color: #fff;
+        }
+        .tg-info { flex-grow: 1; }
+        .tg-name { font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
+        .tg-status { font-size: 0.75rem; color: var(--text-muted); }
+        .tg-close {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.3rem; cursor: pointer; padding: 5px; transition: 0.3s;
+        }
+
+        .tg-chat-area {
+            flex-grow: 1; padding: 15px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 8px;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 0%, transparent 80%);
+        }
+        
+        .tg-msg {
+            max-width: 90%; padding: 10px 12px; border-radius: 12px;
+            font-size: 0.9rem; line-height: 1.4;
+            animation: msgFade 0.3s ease; word-wrap: break-word;
+        }
+        .tg-msg-in { background: var(--tg-msg-in); color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 0; }
+        .tg-msg-out { background: var(--tg-msg-out); color: #fff; align-self: flex-end; border-bottom-right-radius: 0; }
+        .tg-msg.good { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); color: var(--text-main); }
+        .tg-msg.bad { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--text-main); }
+        
+        @keyframes msgFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tg-footer {
+            padding: 12px; background: var(--tg-header);
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .tg-btn {
+            padding: 10px; background: var(--tg-msg-out); color: white;
+            border: none; border-radius: 8px; cursor: pointer;
+            font-size: 0.9rem; font-family: inherit; transition: 0.3s;
+        }
+
+        /* Сканер */
+        .pass-input {
+            width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color);
+            border-radius: 10px; color: var(--text-main); font-size: 1rem; font-family: inherit; outline: none; margin-bottom: 15px; transition: 0.3s;
+        }
+        .pass-bar-container { height: 8px; background: rgba(128, 128, 128, 0.2); border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
+        .pass-bar { height: 100%; width: 0%; background: var(--danger); transition: 0.3s ease; }
+        .pass-result { font-weight: 600; font-size: 0.9rem; }
+
+        /* --- ТЕСТ --- */
+        .test-options { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        
+        .test-result-box { 
+            display: none; margin-top: 20px; padding: 15px; border-radius: 15px; 
+            border: 2px solid var(--border-color); transition: 0.5s;
+        }
+        .test-result-box.green { background: rgba(16, 185, 129, 0.1); border-color: var(--success); }
+        .test-result-box.orange { background: rgba(245, 158, 11, 0.1); border-color: var(--warning); }
+        .test-result-box.red { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); }
+
+        .result-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.85rem; display: block; overflow-x: auto; }
+        .result-table th, .result-table td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .result-table th { color: var(--text-muted); font-weight: 500; }
+        .res-correct { color: var(--success); font-weight: bold; }
+        .res-wrong { color: var(--danger); font-weight: bold; }
+        
+        .hint-btn {
+            background: transparent; border: 1px solid var(--danger); color: var(--danger);
+            padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.75rem;
+            margin-left: 5px; transition: 0.3s;
+        }
+        .hint-text { display: none; margin-top: 5px; font-size: 0.8rem; color: var(--success); }
+
+        .history-btn {
+            background: transparent; color: var(--accent-blue); border: 1px solid var(--accent-blue);
+            padding: 8px 15px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 0.85rem;
+            transition: 0.3s; width: 100%;
+        }
+        
+        .history-list { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .history-item { background: rgba(128,128,128,0.1); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; font-size: 0.85rem; }
+
+        /* --- НОВЫЕ ТРЕНАЖЕРЫ: ПСИХОЛОГИЧЕСКИЙ ТЕСТ --- */
+        .psy-result-box {
+            display: none; margin-top: 20px; padding: 15px; border-radius: 15px;
+            background: rgba(59, 130, 246, 0.1); border: 2px solid var(--accent-blue);
+            text-align: center; animation: fadeIn 0.5s ease;
+        }
+        .psy-result-title { font-size: 1.2rem; font-weight: 800; color: var(--accent-blue); margin-bottom: 10px; }
+        .psy-result-text { color: var(--text-main); font-size: 0.9rem; }
+
+        /* --- НОВЫЕ ТРЕНАЖЕРЫ: КАЛЬКУЛЯТОР БРОНИ --- */
+        .calc-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
+            border-radius: 12px; margin-bottom: 12px; transition: 0.3s;
+        }
+        .calc-row span { font-weight: 600; font-size: 0.85rem; }
+        .calc-toggle {
+            width: 46px; height: 24px; border-radius: 15px; background: rgba(128, 128, 128, 0.3);
+            position: relative; cursor: pointer; transition: 0.3s; flex-shrink: 0; margin-left: 10px;
+        }
+        .calc-toggle::after {
+            content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
+            border-radius: 50%; background: #fff; transition: 0.3s;
+        }
+        .calc-toggle.active { background: var(--success); }
+        .calc-toggle.active::after { transform: translateX(22px); }
+        
+        .calc-bar-wrapper { margin-top: 20px; }
+        .calc-bar-bg { height: 16px; background: rgba(128,128,128,0.2); border-radius: 8px; overflow: hidden; position: relative; }
+        .calc-bar-fill { height: 100%; width: 0%; transition: 0.5s ease; }
+        .calc-result-text { text-align: center; font-weight: 800; font-size: 1rem; margin-top: 10px; }
+
+        /* --- КНОПКА ПОДЕЛИТЬСЯ ВНИЗУ --- */
+        .share-trigger-container {
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+            border-bottom: none;
+        }
+
+        .share-trigger-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* --- МОДАЛЬНОЕ ОКНО С QR-КОДОМ --- */
+        .qr-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+            z-index: 3000; display: none; justify-content: center; align-items: center;
+            padding: 20px;
+        }
+
+        .qr-modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--gold-border);
+            box-shadow: 0 0 40px var(--gold-glow), inset 0 0 20px var(--gold-glow);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            max-width: 300px;
+            width: 100%;
+            animation: tgFadeIn 0.3s ease;
+            position: relative;
+        }
+
+        .qr-modal-close {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.3rem; cursor: pointer; transition: 0.3s;
+        }
+
+        .qr-image {
+            width: 100%;
+            max-width: 200px;
+            border-radius: 10px;
+            background: #fff;
+            padding: 10px;
+        }
+
+        .qr-link {
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            word-break: break-all;
+            text-decoration: underline;
+            text-decoration-color: transparent;
+        }
+
+        /* --- УВЕДОМЛЕНИЕ О КОПИРОВАНИИ --- */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--accent-blue);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+            opacity: 0;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10000;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* --- ПОДВАЛ --- */
+        footer { text-align: center; padding: 30px 15px; color: var(--text-muted); font-size: 0.85em; background: var(--bg-card); transition: background 0.4s; }
+        footer b { color: var(--text-main); }
+
+        /* --- АНИМАЦИЯ ЗВЕЗДОЧЕК --- */
+        .star-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 1rem;
+            color: var(--accent-blue);
+            text-shadow: 0 0 10px var(--accent-blue), 0 0 20px var(--accent-purple);
+            animation: fall 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100px) scale(0) rotate(360deg); opacity: 0; }
+        }
+
+        /* ========================================= */
+        /* --- АДАПТИВ ДЛЯ ПЛАНШЕТОВ И ПК (ОТ 768PX) --- */
+        /* ========================================= */
+        @media (min-width: 768px) {
+            .theme-selector-screen h2 { font-size: 2.5rem; margin-top: 0; }
+            .theme-selector-screen p { font-size: 1.1rem; }
+            .theme-card { min-height: 340px; }
+            .theme-icon { font-size: 4rem; }
+            .theme-name { font-size: 1.3rem; }
+
+            h2 { font-size: 2.2rem; }
+            .section-desc { font-size: 1.1rem; margin-bottom: 40px; }
+            section { padding: 80px 0; }
+            .container { padding: 0 20px; }
+            
+            .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+            .stat-number { font-size: 3rem; }
+            .stat-text { font-size: 0.95rem; }
+            
+            .glass-card { padding: 30px; }
+            .icon-box { width: 50px; height: 50px; font-size: 1.5rem; margin-bottom: 20px; }
+            .card-title { font-size: 1.2rem; }
+            .card-text { font-size: 0.95rem; }
+
+            .grid-2 { grid-template-columns: repeat(2, 1fr); gap: 25px; }
+            .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 25px; }
+            
+            .practice-card { width: 320px; padding: 30px; border-radius: 20px; }
+            .practice-icon { font-size: 2.5rem; margin-bottom: 15px; }
+            .practice-title { font-size: 1.3rem; margin-bottom: 10px; }
+            .practice-desc { font-size: 0.9rem; }
+            
+            .step-card { padding: 25px; gap: 20px; margin-bottom: 20px; }
+            .step-num { min-width: 45px; height: 45px; font-size: 1.2rem; }
+
+            .btn { padding: 16px 36px; font-size: 1.1em; }
+            header p { font-size: 1.2rem; margin-bottom: 40px; }
+            .hero-badge { font-size: 0.85em; }
+
+            .action-btn { font-size: 1rem; padding: 15px 20px; }
+            .module-window { padding: 30px; }
+            .tg-window { height: 80vh; }
+            .tg-header { padding: 15px 20px; gap: 15px; }
+            .tg-avatar { width: 40px; height: 40px; font-size: 1.2rem; }
+            .tg-name { font-size: 1rem; }
+            .tg-msg { padding: 10px 15px; }
+            .tg-footer { padding: 15px; gap: 10px; }
+
+            .history-btn { width: auto; }
+            .toast { padding: 12px 25px; font-size: 0.9rem; }
+            
+            /* Туториал на пк */
+            .tutorial-window { padding: 40px 30px; }
+            .tutorial-icon { width: 100px; height: 100px; font-size: 3rem; }
+            .tutorial-title { font-size: 1.5rem; }
+            .tutorial-text { font-size: 1rem; min-height: 90px; }
+        }
+        
+        /* --- МОБИЛЬНАЯ НАВИГАЦИЯ --- */
+        @media (max-width: 767px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 12px;
+                padding: 10px 15px;
+            }
+            nav ul {
+                width: 100%;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 5px;
+                justify-content: flex-start;
+                -ms-overflow-style: none;  
+                scrollbar-width: none;  
+            }
+            nav ul::-webkit-scrollbar { display: none; }
+            nav a {
+                white-space: nowrap;
+                font-size: 0.85rem;
+                padding: 5px 10px;
+            }
+            .theme-toggle-btn {
+                margin-left: 10px;
+            }
+            header {
+                padding-top: 130px; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ЭКРАН ВЫБОРА ТЕМЫ -->
+    <div id="themeSelector" class="theme-selector-screen">
+        <h2>Выбери свою атмосферу</h2>
+        <p>В каком стиле ты хочешь изучать кибербезопасность?</p>
+        <div class="theme-cards">
+            <div class="theme-card dark-option" onclick="selectTheme('dark')">
+                <div class="theme-icon">🌙</div>
+                <div class="theme-name">Тёмная тема</div>
+                <div class="theme-desc">Классический киберпанк, неон и глубокий космос.</div>
+                <div class="recommend-badge">Рекомендуется</div>
+            </div>
+            <div class="theme-card light-option" onclick="selectTheme('light')">
+                <div class="theme-icon">☀️</div>
+                <div class="theme-name">Светлая тема</div>
+                <div class="theme-desc">Чистый технологичный дизайн с яркими акцентами.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО ТУТОРИАЛА -->
+    <div id="tutorialModal" class="tutorial-overlay">
+        <!-- Шаг 0: Вопрос -->
+        <div id="tutorial-step-0" class="tutorial-window">
+            <div class="tutorial-icon">👋</div>
+            <div class="tutorial-title">Добро пожаловать!</div>
+            <div class="tutorial-text">Хочешь, я быстро покажу, как тут всё устроено? Это займет меньше минуты.</div>
+            <div class="tutorial-buttons">
+                <button class="tutorial-btn secondary" onclick="closeTutorial(false)">Пропустить</button>
+                <button class="tutorial-btn primary" onclick="startTutorial()">Да, давай!</button>
+            </div>
+        </div>
+
+        <!-- Шаг 1 -->
+        <div id="tutorial-step-1" class="tutorial-window" style="display: none;">
+            <div class="tutorial-icon">🛡️</div>
+            <div class="tutorial-title">Главная страница</div>
+            <div class="tutorial-text">Здесь ты можешь начать изучение материалов. Кнопка «Начать изучение» плавно перенесет тебя к первому разделу.</div>
+            <div class="tutorial-dots">
+                <div class="tutorial-dot active"></div>
+                <div class="tutorial-dot"></div>
+                <div class="tutorial-dot"></div>
+            </div>
+            <div class="tutorial-buttons">
+                <button class="tutorial-btn secondary" onclick="closeTutorial(false)">Пропустить</button>
+                <button class="tutorial-btn primary" onclick="nextTutorial(2)">Далее</button>
+            </div>
+        </div>
+
+        <!-- Шаг 2 -->
+        <div id="tutorial-step-2" class="tutorial-window" style="display: none;">
+            <div class="tutorial-icon">📖</div>
+            <div class="tutorial-title">Полезные знания</div>
+            <div class="tutorial-text">Скролль вниз, чтобы изучить статистику, психологию мошенников и главные схемы обмана. Эти разделы — твоя база.</div>
+            <div class="tutorial-dots">
+                <div class="tutorial-dot"></div>
+                <div class="tutorial-dot active"></div>
+                <div class="tutorial-dot"></div>
+            </div>
+            <div class="tutorial-buttons">
+                <button class="tutorial-btn secondary" onclick="prevTutorial(1)">Назад</button>
+                <button class="tutorial-btn primary" onclick="nextTutorial(3)">Далее</button>
+            </div>
+        </div>
+
+        <!-- Шаг 3 -->
+        <div id="tutorial-step-3" class="tutorial-window" style="display: none;">
+            <div class="tutorial-icon">🎮</div>
+            <div class="tutorial-title">Практика</div>
+            <div class="tutorial-text">В самом низу тебя ждут интерактивные тренажеры: симулятор переписки, тесты и калькулятор. Обязательно проверь свои силы!</div>
+            <div class="tutorial-dots">
+                <div class="tutorial-dot"></div>
+                <div class="tutorial-dot"></div>
+                <div class="tutorial-dot active"></div>
+            </div>
+            <div class="tutorial-buttons">
+                <button class="tutorial-btn secondary" onclick="prevTutorial(2)">Назад</button>
+                <button class="tutorial-btn primary" onclick="closeTutorial(true)">Поехали!</button>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-content">
+            <div class="logo">🛡 ЩИТ</div>
+            <ul>
+                <li><a href="#stats" class="nav-link">Статистика</a></li>
+                <li><a href="#psychology" class="nav-link">Психология</a></li>
+                <li><a href="#schemes" class="nav-link">Схемы</a></li>
+                <li><a href="#steps" class="nav-link">Алгоритм</a></li>
+                <li><a href="#fake" class="nav-link">Антифейк</a></li>
+                <li><a href="#help" class="nav-link">Помощь</a></li>
+                <li><a href="#practice" class="nav-link">Практика</a></li>
+                <li><button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Сменить тему">🌙</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header>
+        <div class="hero-badge">Проект по цифровой безопасности</div>
+        <h1>Цифровой <span class="gradient-text">Щит</span></h1>
+        <p>Полный гид по защите от мошенничества и недостоверной информации в 2026 году.</p>
+        <a href="#stats" class="btn nav-link">Начать изучение</a>
+    </header>
+
+    <div class="container">
+        
+        <!-- СТАТИСТИКА -->
+        <section id="stats" data-aos="fade-up">
+            <h2>📊 Масштаб проблемы</h2>
+            <p class="section-desc">Мошенничество в интернете давно перестало быть «проблемой пожилых». По данным МВД и Банка России, ситуация в 2025–2026 годах выглядит так:</p>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number">89%</div>
+                    <div class="stat-text">подростков хотя бы раз сталкивались со звонками или сообщениями мошенников</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">250+ млрд ₽</div>
+                    <div class="stat-text">украли мошенники у граждан РФ за последний год</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">×3</div>
+                    <div class="stat-text">выросло число схем, нацеленных на школьников и студентов</div>
+                </div>
+            </div>
+            <div class="card-text" style="background: rgba(239,68,68,0.1); padding: 20px; border-radius: 12px; border-left: 4px solid var(--danger);">
+                <b>Главный вывод:</b> мошенники — это не просто «злые люди по телефону», а целые организованные call-центры, которые используют психологию, скрипты и современные технологии.
+            </div>
+        </section>
+
+        <!-- ПСИХОЛОГИЯ -->
+        <section id="psychology" data-aos="fade-up">
+            <h2>🧠 Почему мы им верим</h2>
+            <p class="section-desc">Мошенники не взламывают банки — они взламывают наши эмоции. Вот 3 главных приема, которые они используют:</p>
+            
+            <div class="grid-2">
+                <div class="glass-card">
+                    <div class="icon-box icon-danger">😨</div>
+                    <div class="card-title">Страх (Стресс)</div>
+                    <div class="card-text">Фразы вроде <b>«Ваши деньги в опасности»</b> или <b>«На вас подали в суд»</b> отключают логику. В состоянии паники мозг ищет «спасителя», которым и притворяется мошенник.</div>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box icon-danger">⏳</div>
+                    <div class="card-title">Спешка (Таймер)</div>
+                    <div class="card-text">Вас заставляют действовать <b>«прямо сейчас»</b>. Это делается для того, чтобы у вас не было времени позвонить родителям или в банк.</div>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box icon-danger">🎭</div>
+                    <div class="card-title">Авторитет</div>
+                    <div class="card-text">Они представляются <b>сотрудниками ФСБ, полиции, Центробанка</b>. Школьник боится перечить «взрослым в форме» и выполняет их команды.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- СХЕМЫ -->
+        <section id="schemes" data-aos="fade-up">
+            <h2>⚠️ Главные схемы 2026 года</h2>
+            <p class="section-desc">Как именно работают самые популярные ловушки:</p>
+            
+            <div class="grid-4">
+                <div class="glass-card">
+                    <div class="icon-box icon-danger">🏦</div>
+                    <div class="card-title">«Безопасный счёт»</div>
+                    <div class="card-text"><b>Как работает:</b> Звонящий говорит, что с вашей карты пытаются украсть деньги. Чтобы «спасти» их, нужно перевести на «безопасный счёт».<br><br><b>Правда:</b> <b>Такого счёта не существует!</b> Деньги уходят напрямую мошенникам.</div>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box icon-danger">📦</div>
+                    <div class="card-title">Фейковая доставка</div>
+                    <div class="card-text"><b>Как работает:</b> Приходит СМС: «Ваша посылка задержана, доплатите 1 рубль по ссылке».<br><br><b>Правда:</b> Ссылка ведет на сайт-клон. Как только вы введете данные карты — с нее спишут всё.</div>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box icon-danger">📱</div>
+                    <div class="card-title">Взлом аккаунта друга</div>
+                    <div class="card-text"><b>Как работает:</b> Друг в Telegram просит «проголосовать за него в конкурсе» или «занять 500 рублей до завтра».<br><br><b>Правда:</b> Аккаунт друга взломан. Перейдя по ссылке, вы потеряете свой аккаунт.</div>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box icon-danger">💼</div>
+                    <div class="card-title">«Легкий заработок»</div>
+                    <div class="card-text"><b>Как работает:</b> В соцсетях предлагают «работать с телефона», инвестировать или получить «выплаты от государства».<br><br><b>Правда:</b> Это воронка, где вас заставят вложить деньги или оформят на вас кредит.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- АЛГОРИТМ -->
+        <section id="steps" data-aos="fade-up">
+            <h2>✅ Что делать, если столкнулся</h2>
+            <p class="section-desc">Четкий алгоритм действий, который нужно знать наизусть:</p>
+            
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <div>
+                    <div class="card-title">СТОП и СБРОС</div>
+                    <div class="card-text">Положите трубку. Никогда не произносите слово <b>«Да»</b> (ваш голос могут записать и использовать как биометрию для подтверждения операций).</div>
+                </div>
+            </div>
+            <div class="step-card">
+                <div class="step-num">2</div>
+                <div>
+                    <div class="card-title">ПАУЗА</div>
+                    <div class="card-text">Не паникуйте. Мошенники давят на эмоции. Сделайте глубокий вдох. Помните: настоящий банк никогда не торопит.</div>
+                </div>
+            </div>
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <div>
+                    <div class="card-title">ПРОВЕРКА через обход</div>
+                    <div class="card-text">Перезвоните в банк по номеру <b>с обратной стороны вашей карты</b> или с официального сайта. Никогда не перезванивайте по номеру из СМС!</div>
+                </div>
+            </div>
+            <div class="step-card">
+                <div class="step-num">4</div>
+                <div>
+                    <div class="card-title">НЕ ПЕРЕХОДИ</div>
+                    <div class="card-text">Не кликайте по ссылкам из мессенджеров. Вбивайте адрес сайта (например, gosuslugi.ru) вручную в адресную строку браузера.</div>
+                </div>
+            </div>
+            <div class="step-card">
+                <div class="step-num">5</div>
+                <div>
+                    <div class="card-title">РАССКАЖИ ВЗРОСЛЫМ</div>
+                    <div class="card-text">Обязательно расскажите родителям. Даже если вы уже испугались или что-то нажали. Чем быстрее вы это сделаете, тем меньше будет ущерб.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- АНТИФЕЙК -->
+        <section id="fake" data-aos="fade-up">
+            <h2>🔍 Антифейк и защита данных</h2>
+            <p class="section-desc">Как не поверить в ложь и не потерять свои аккаунты:</p>
+            
+            <div class="grid-4">
+                <div class="glass-card">
+                    <div class="icon-box icon-info">🌐</div>
+                    <div class="card-title">Проверка домена (Фишинг)</div>
+                    <div class="card-text">Всегда смотрите на адресную строку! <b>gosuslugi.ru</b> — официальный сайт. <b>gosuslugi-info.ru</b> или <b>gosuslugi.download</b> — подделки мошенников.</div>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box icon-info">📰</div>
+                    <div class="card-title">Правило 3 источников</div>
+                    <div class="card-text">Увидели шокирующую новость? Проверьте, пишут ли о ней ТАСС, РИА Новости или РБК. Если новость есть только в одном паблике — это фейк.</div>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box icon-success">🔑</div>
+                    <div class="card-title">Двухфакторная аутентификация</div>
+                    <div class="card-text">Включите 2FA в Госуслугах, ВК, Telegram. Даже если мошенники украдут пароль, без кода из СМС они не смогут войти в аккаунт.</div>
+                </div>
+                <div class="glass-card">
+                    <div class="icon-box icon-success">🕵️</div>
+                    <div class="card-title">Приватность в соцсетях</div>
+                    <div class="card-text">Закройте свой профиль от посторонних. Не выкладывайте фото с адресом, номером школы или данными документов. Это используют против вас.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ПОМОЩЬ -->
+        <section id="help" data-aos="fade-up">
+            <h2>🚨 Куда обращаться</h2>
+            <p class="section-desc">Если вы или ваши близкие столкнулись с мошенниками:</p>
+            <div class="glass-card" style="border-left: 4px solid var(--accent-blue); margin-bottom: 15px;">
+                <div class="card-title">1. Позвоните в свой банк</div>
+                <div class="card-text">По номеру с обратной стороны карты. Сообщите о подозрительной операции, чтобы они заблокировали карту и попытались вернуть перевод.</div>
+            </div>
+            <div class="glass-card" style="border-left: 4px solid var(--accent-blue); margin-bottom: 15px;">
+                <div class="card-title">2. Подайте заявление в полицию</div>
+                <div class="card-text">Вызовите полицию по номеру <b>102</b> или подайте заявление онлайн на сайте <b>МВД.рф</b> (раздел «Прием обращений»). Обязательно приложите скриншоты переписки и чеки.</div>
+            </div>
+            <div class="glass-card" style="border-left: 4px solid var(--accent-blue);">
+                <div class="card-title">3. Позвоните на горячую линию</div>
+                <div class="card-text">Телефон горячей линии Банка России: <b>8-800-100-24-24</b>. Там подскажут, как действовать в конкретной ситуации.</div>
+            </div>
+        </section>
+
+        <!-- ПРАКТИКА -->
+        <section id="practice" data-aos="fade-up">
+            <h2>🎮 Практика безопасности</h2>
+            <p class="section-desc">Проверь свои силы в интерактивных тренажерах. Узнай, сможешь ли ты распознать уловки мошенников в реальной жизни.</p>
+
+            <div id="practice-menu" class="practice-grid">
+                <div class="practice-card" onclick="openModule('simulator')">
+                    <div class="practice-icon">📱</div>
+                    <div class="practice-title">Симулятор переписки</div>
+                    <div class="practice-desc">Пройди испытание и не попадись на уловки.</div>
+                </div>
+                <div class="practice-card" onclick="openModule('scanner')">
+                    <div class="practice-icon">🛡️</div>
+                    <div class="practice-title">Сканер паролей</div>
+                    <div class="practice-desc">Проверь свой пароль на надежность.</div>
+                </div>
+                <div class="practice-card" onclick="openModule('test')">
+                    <div class="practice-icon">📝</div>
+                    <div class="practice-title">Тест на безопасность</div>
+                    <div class="practice-desc">Ответь на вопросы и узнай свой уровень.</div>
+                </div>
+                <div class="practice-card" onclick="openModule('psyTest')">
+                    <div class="practice-icon">🧠</div>
+                    <div class="practice-title">Психологический тест</div>
+                    <div class="practice-desc">На какую уловку ты бы повелся?</div>
+                </div>
+                <div class="practice-card" onclick="openModule('calc')">
+                    <div class="practice-icon">🧮</div>
+                    <div class="practice-title">Калькулятор брони</div>
+                    <div class="practice-desc">Оцени свой уровень цифровой защиты.</div>
+                </div>
+            </div>
+
+            <!-- Окно для тренажеров -->
+            <div id="module-window" class="module-window">
+                <button class="back-btn" onclick="closeModule()">← Вернуться в меню</button>
+                
+                <!-- СКАНЕР -->
+                <div id="scanner-content" style="display: none;">
+                    <h3 style="color: var(--accent-purple); margin-bottom: 15px;">Сканер надежности</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Введи пароль, чтобы узнать, как быстро его взломают:</p>
+                    <input type="text" id="password-input" class="pass-input" placeholder="Например: qwerty123">
+                    <div class="pass-bar-container"><div id="password-strength-bar" class="pass-bar"></div></div>
+                    <p id="password-result" class="pass-result" style="color: var(--text-muted);">Начни вводить пароль...</p>
+                </div>
+
+                <!-- ТЕСТ -->
+                <div id="test-content" style="display: none;">
+                    <h3 style="color: var(--success); margin-bottom: 15px;">Тест на безопасность</h3>
+                    <div id="test-question-text" style="font-size: 1rem; font-weight: 600; margin-bottom: 15px;"></div>
+                    <div id="test-options" class="test-options"></div>
+                    
+                    <div id="test-result" class="test-result-box">
+                        <h4 id="test-result-title" style="margin-bottom: 10px;"></h4>
+                        <p id="test-result-text" style="margin-bottom: 15px;"></p>
+                        
+                        <div style="overflow-x: auto;">
+                            <table class="result-table" id="test-result-table">
+                                <thead>
+                                    <tr>
+                                        <th>Вопрос</th>
+                                        <th>Ваш ответ</th>
+                                        <th>Результат</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        
+                        <button class="action-btn" style="border-color: var(--success); text-align: center; margin-top: 20px;" onclick="closeModule()">Вернуться в меню</button>
+                        <button class="history-btn" onclick="toggleHistory()">Посмотреть прошлые результаты</button>
+                        <div id="history-list" class="history-list" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- ПСИХОЛОГИЧЕСКИЙ ТЕСТ -->
+                <div id="psyTest-content" style="display: none;">
+                    <h3 style="color: var(--accent-blue); margin-bottom: 15px;">Психологический тест</h3>
+                    <div id="psy-question-text" style="font-size: 1rem; font-weight: 600; margin-bottom: 15px;"></div>
+                    <div id="psy-options" class="test-options"></div>
+                    <div id="psy-result" class="psy-result-box">
+                        <div id="psy-result-title" class="psy-result-title"></div>
+                        <div id="psy-result-text" class="psy-result-text"></div>
+                        <button class="action-btn" style="border-color: var(--accent-blue); text-align: center; margin-top: 20px;" onclick="closeModule()">Вернуться в меню</button>
+                    </div>
+                </div>
+
+                <!-- КАЛЬКУЛЯТОР БРОНИ -->
+                <div id="calc-content" style="display: none;">
+                    <h3 style="color: var(--warning); margin-bottom: 15px;">Калькулятор брони</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">Отметь, что из этого у тебя включено:</p>
+                    
+                    <div class="calc-row">
+                        <span>Двухфакторная аутентификация (2FA)</span>
+                        <div class="calc-toggle" onclick="toggleCalc(this, 1)"></div>
+                    </div>
+                    <div class="calc-row">
+                        <span>Закрытый профиль в соцсетях</span>
+                        <div class="calc-toggle" onclick="toggleCalc(this, 2)"></div>
+                    </div>
+                    <div class="calc-row">
+                        <span>Разные пароли для всех аккаунтов</span>
+                        <div class="calc-toggle" onclick="toggleCalc(this, 3)"></div>
+                    </div>
+                    
+                    <div class="calc-bar-wrapper">
+                        <div class="calc-bar-bg">
+                            <div id="calc-bar-fill" class="calc-bar-fill"></div>
+                        </div>
+                        <div id="calc-result-text" class="calc-result-text">Твой уровень брони: 0%</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- КНОПКА ПОДЕЛИТЬСЯ -->
+    <div class="share-trigger-container">
+        <button class="share-trigger-btn" onclick="openQrModal()">
+            <span>🔗</span> Поделиться
+        </button>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО С QR-КОДОМ -->
+    <div id="qrModal" class="qr-modal-overlay">
+        <div class="qr-modal-content">
+            <button class="qr-modal-close" onclick="closeQrModal()">✕</button>
+            <img src="qr.png" alt="QR-код на сайт" class="qr-image">
+            <div id="qrLinkText" class="qr-link" onclick="copyToClipboard()">manikyl.github.io/cifr</div>
+        </div>
+    </div>
+
+    <!-- Окно Симулятора (Telegram Style) -->
+    <div id="tg-overlay" class="tg-overlay">
+        <div class="tg-window">
+            <div class="tg-header">
+                <div class="tg-avatar">?</div>
+                <div class="tg-info">
+                    <div class="tg-name" id="tg-name">Неизвестный</div>
+                    <div class="tg-status">в сети</div>
+                </div>
+                <button class="tg-close" onclick="closeSimulator()">✕</button>
+            </div>
+            <div class="tg-chat-area" id="tg-chat-area"></div>
+            <div class="tg-footer" id="tg-footer"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p><b>Индивидуальный проект ученика 9 класса Борисова Данила Геннадьевича</b></p>
+        <p>МБОУ г. Иркутска гимназия № 3</p>
+        <p>Источники: МВД РФ, Банк России, Роскомнадзор. 2026 г.</p>
+    </footer>
+
+    <!-- Уведомление о копировании -->
+    <div id="toast" class="toast">Ссылка скопирована!</div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // --- ЛОГИКА ТУТОРИАЛА ---
+        const tutorialModal = document.getElementById('tutorialModal');
+        
+        // Проверяем, проходил ли уже пользователь туториал
+        const hasSeenTutorial = localStorage.getItem('shieldTutorialDone');
+
+        // Если выбрана тема и туториал еще не пройден — показываем окно
+        function checkTutorial() {
+            if (!hasSeenTutorial) {
+                tutorialModal.style.display = 'flex';
+            }
+        }
+
+        function startTutorial() {
+            document.getElementById('tutorial-step-0').style.display = 'none';
+            document.getElementById('tutorial-step-1').style.display = 'block';
+        }
+
+        function nextTutorial(step) {
+            document.querySelectorAll('.tutorial-window').forEach(el => el.style.display = 'none');
+            document.getElementById('tutorial-step-' + step).style.display = 'block';
+        }
+
+        function prevTutorial(step) {
+            document.querySelectorAll('.tutorial-window').forEach(el => el.style.display = 'none');
+            document.getElementById('tutorial-step-' + step).style.display = 'block';
+        }
+
+        function closeTutorial(isCompleted) {
+            tutorialModal.style.display = 'none';
+            if (isCompleted !== false) {
+                // Запоминаем, что прошли
+                localStorage.setItem('shieldTutorialDone', 'true');
+            } else {
+                // Если пропустили, тоже запоминаем, чтобы не бесить каждый раз
+                localStorage.setItem('shieldTutorialDone', 'skipped');
+            }
+        }
+
+        // --- МОДАЛЬНОЕ ОКНО QR-КОДА ---
+        function openQrModal() { document.getElementById('qrModal').style.display = 'flex'; }
+        function closeQrModal() { document.getElementById('qrModal').style.display = 'none'; }
+
+        // --- КОПИРОВАНИЕ ССЫЛКИ ---
+        function copyToClipboard() {
+            const url = window.location.href; 
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 2500);
+            }).catch(err => { console.error('Ошибка копирования: ', err); });
+        }
+
+        // --- ЛОГИКА СМЕНЫ ТЕМЫ ---
+        const themeSelector = document.getElementById('themeSelector');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+        const savedTheme = localStorage.getItem('shieldTheme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+            themeSelector.classList.add('hidden');
+            checkTutorial(); // Проверяем туториал при загрузке
+        }
+
+        function selectTheme(theme) {
+            setTheme(theme);
+            localStorage.setItem('shieldTheme', theme);
+            themeSelector.classList.add('hidden');
+            checkTutorial(); // Запускаем проверку туториала после выбора темы
+        }
+
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-theme');
+                themeToggleBtn.innerText = '☀️';
+            } else {
+                document.body.classList.remove('light-theme');
+                themeToggleBtn.innerText = '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            if (document.body.classList.contains('light-theme')) {
+                setTheme('dark'); localStorage.setItem('shieldTheme', 'dark');
+            } else {
+                setTheme('light'); localStorage.setItem('shieldTheme', 'light');
+            }
+        }
+
+        // --- ЭФФЕКТ ПАДАЮЩИХ ЗВЕЗД ---
+        document.querySelectorAll('.nav-link, .btn').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                for(let i = 0; i < 12; i++) createStar(rect.left + (rect.width / 2), rect.top + (rect.height / 2));
+            });
+        });
+
+        function createStar(x, y) {
+            const star = document.createElement('div');
+            star.className = 'star-particle';
+            const symbols = ['✦', '✧', '★', '✶', '❈'];
+            star.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            star.style.left = `${x + (Math.random() - 0.5) * 100}px`;
+            star.style.top = `${y + (Math.random() - 0.5) * 50}px`;
+            const color = Math.random() > 0.5 ? 'var(--accent-blue)' : 'var(--accent-purple)';
+            star.style.color = color;
+            star.style.textShadow = `0 0 10px ${color}`;
+            star.style.animationDelay = `${Math.random() * 0.2}s`;
+            star.style.animationDuration = `${0.8 + Math.random() * 0.4}s`;
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1500);
+        }
+
+        // --- УПРАВЛЕНИЕ МЕНЮ ---
+        function openModule(moduleName) {
+            if (moduleName === 'simulator') { openSimulator(); return; }
+            document.getElementById('practice-menu').style.display = 'none';
+            document.getElementById('module-window').style.display = 'block';
+            document.querySelectorAll('#module-window > div').forEach(el => el.style.display = 'none');
+            document.getElementById(moduleName + '-content').style.display = 'block';
+
+            if (moduleName === 'scanner') resetScanner();
+            if (moduleName === 'test') loadTest();
+            if (moduleName === 'psyTest') loadPsyTest();
+            if (moduleName === 'calc') resetCalc();
+        }
+
+        function closeModule() {
+            document.getElementById('practice-menu').style.display = 'flex';
+            document.getElementById('module-window').style.display = 'none';
+        }
+
+        // --- СИМУЛЯТОР (TELEGRAM STYLE) ---
+        const simScenarios = [
+            { name: "Сын", avatar: "👦", messages: [{ text: "Привет, это твой сын. У меня беда, срочно скинь 5000 на эту карту: 2202 20XX XXXX XXXX. Пожалуйста, быстрее!", type: 'in' }], options: [{ text: "Скинуть деньги", safe: false }, { text: "Позвонить сыну и проверить", safe: true }] },
+            { name: "Служба безопасности", avatar: "🏦", messages: [{ text: "Вам звонит 'Служба безопасности банка'. Говорят, что на вас оформляют кредит. Просят назвать код из СМС для отмены.", type: 'in' }], options: [{ text: "Назвать код", safe: false }, { text: "Положить трубку и перезвонить в банк самому", safe: true }] },
+            { name: "Приз", avatar: "🎁", messages: [{ text: "Вы выиграли iPhone 15! Чтобы получить приз, перейдите по ссылке и оплатите доставку 300 рублей.", type: 'in' }], options: [{ text: "Оплатить доставку", safe: false }, { text: "Удалить сообщение (это фишинг)", safe: true }] }
+        ];
+
+        let currentScenario = 0;
+        function openSimulator() { currentScenario = 0; document.getElementById('tg-overlay').style.display = 'flex'; renderScenario(); }
+        function closeSimulator() { document.getElementById('tg-overlay').style.display = 'none'; }
+
+        function renderScenario() {
+            const chatArea = document.getElementById('tg-chat-area');
+            const footer = document.getElementById('tg-footer');
+            const nameEl = document.getElementById('tg-name');
+            const avatarEl = document.querySelector('.tg-avatar');
+            
+            if (currentScenario >= simScenarios.length) {
+                nameEl.innerText = "Завершено"; avatarEl.innerText = "✅";
+                chatArea.innerHTML = `<div class="tg-msg tg-msg-in good" style="align-self: center; text-align: center; max-width: 100%; margin-top: 20px;"><h4 style="margin-bottom: 5px; color: var(--success);">🎉 Отлично!</h4><p>Ты прошел все ловушки. Главное правило: СТОП, ПАУЗА, ПРОВЕРЬ.</p></div>`;
+                footer.innerHTML = `<button class="tg-btn" onclick="closeSimulator()">Вернуться на сайт</button>`;
+                return;
+            }
+
+            const scenario = simScenarios[currentScenario];
+            nameEl.innerText = scenario.name; avatarEl.innerText = scenario.avatar;
+            chatArea.innerHTML = '';
+            scenario.messages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `tg-msg tg-msg-${msg.type}`;
+                msgDiv.innerText = msg.text;
+                chatArea.appendChild(msgDiv);
+            });
+
+            footer.innerHTML = '';
+            scenario.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'tg-btn'; btn.innerText = opt.text;
+                btn.onclick = () => checkSimAnswer(opt.safe);
+                footer.appendChild(btn);
+            });
+        }
+
+        function checkSimAnswer(isSafe) {
+            const chatArea = document.getElementById('tg-chat-area');
+            const footer = document.getElementById('tg-footer');
+
+            if (isSafe) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'tg-msg tg-msg-in good';
+                msgDiv.innerHTML = `<b style="color: var(--success);">✅ Верно!</b><br>Ты проявил бдительность. Мошенники любят торопить и пугать. Проверка — твое главное оружие.`;
+                chatArea.appendChild(msgDiv);
+                footer.innerHTML = `<button class="tg-btn" onclick="currentScenario++; renderScenario();">Следующая ситуация →</button>`;
+            } else {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'tg-msg tg-msg-in bad';
+                msgDiv.innerHTML = `<b style="color: var(--danger);">❌ Ты попался!</b><br>Мошенники добились своего. Никогда не переводи деньги и не называй коды.`;
+                chatArea.appendChild(msgDiv);
+                footer.innerHTML = `<button class="tg-btn" onclick="currentScenario = 0; renderScenario();">Попробовать снова</button>`;
+            }
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // --- СКАНЕР ПАРОЛЕЙ ---
+        const passInput = document.getElementById('password-input');
+        const passBar = document.getElementById('password-strength-bar');
+        const passResult = document.getElementById('password-result');
+
+        function resetScanner() {
+            passInput.value = ''; passBar.style.width = '0%'; passResult.innerText = 'Начни вводить пароль...'; passResult.style.color = 'var(--text-muted)';
+        }
+
+        passInput.addEventListener('input', function() {
+            const val = this.value;
+            let score = 0;
+            if (val.length === 0) { resetScanner(); return; }
+            if (val.length > 5) score += 1;
+            if (val.length > 8) score += 1;
+            if (/[A-Z]/.test(val)) score += 1;
+            if (/[0-9]/.test(val)) score += 1;
+            if (/[^A-Za-z0-9]/.test(val)) score += 1;
+            if (['12345', '123456', 'qwerty', 'password', 'admin'].includes(val.toLowerCase())) score = 1;
+
+            if (score <= 2) {
+                passBar.style.width = '33%'; passBar.style.background = 'var(--danger)';
+                passResult.innerText = 'Слабый пароль. Взломают за секунды.'; passResult.style.color = 'var(--danger)';
+            } else if (score <= 4) {
+                passBar.style.width = '66%'; passBar.style.background = 'var(--warning)';
+                passResult.innerText = 'Средний пароль. Добавь спецсимволы или заглавные буквы.'; passResult.style.color = 'var(--warning)';
+            } else {
+                passBar.style.width = '100%'; passBar.style.background = 'var(--success)';
+                passResult.innerText = 'Отличный пароль! Высокая надежность.'; passResult.style.color = 'var(--success)';
+            }
+        });
+
+        // --- ТЕСТ НА БЕЗОПАСНОСТЬ ---
+        const testQuestions = [
+            { q: "Вам приходит СМС: «Код для входа: 4412. Никому не сообщайте». Через минуту звонит «сотрудник банка» и говорит, что этот код нужен для отмены ошибочного перевода. Что делать?", a: ["Назвать код, чтобы отменить перевод", "Сказать, что это не банк, и положить трубку", "Сказать, что СМС не пришло"], correct: 1 },
+            { q: "Вы видите в Telegram сообщение от друга: «Привет, проголосуй за меня в конкурсе, вот ссылка». Что это может быть?", a: ["Безобидная просьба", "Фишинг. Аккаунт друга могли взломать", "Ошибка системы"], correct: 1 },
+            { q: "Что из этого — самый надежный пароль?", a: ["qwerty12345", "МамаСвета2010", "vB#7mK!pL2$q"], correct: 2 },
+            { q: "Вам пишут, что посылка задержана и нужно доплатить 1 рубль по ссылке. Ваши действия?", a: ["Перейти по ссылке и оплатить", "Проверить статус посылки в официальном приложении", "Написать в поддержку по ссылке"], correct: 1 },
+            { q: "Какой из этих адресов сайта Госуслуг — официальный и безопасный?", a: ["gosuslugi-vyplaty.com", "gosuslugi.ru", "gosuslugi-login.ru"], correct: 1 },
+            { q: "Мошенник представляется сотрудником ФСБ и говорит, что на вас завели дело. Приказывает перевести деньги на «безопасный счет». Что делать?", a: ["Перевести деньги, чтобы избежать проблем", "Положить трубку и рассказать родителям", "Спросить его номер и удостоверение"], correct: 1 }
+        ];
+
+        let currentQ = 0, testScore = 0, currentAnswers = [];
+
+        function loadTest() { currentQ = 0; testScore = 0; currentAnswers = []; document.getElementById('test-result').style.display = 'none'; renderQuestion(); }
+
+        function renderQuestion() {
+            const qText = document.getElementById('test-question-text');
+            const optsDiv = document.getElementById('test-options');
+            
+            if (currentQ >= testQuestions.length) { showTestResult(); return; }
+            const q = testQuestions[currentQ];
+            qText.innerText = `${currentQ + 1}. ${q.q}`;
+            optsDiv.innerHTML = '';
+            q.a.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'action-btn'; btn.innerText = option;
+                btn.onclick = () => {
+                    const isCorrect = (index === q.correct);
+                    if (isCorrect) testScore++;
+                    currentAnswers.push({ question: q.q, chosen: option, correctAnswer: q.a[q.correct], isCorrect: isCorrect });
+                    currentQ++; renderQuestion();
+                };
+                optsDiv.appendChild(btn);
+            });
+        }
+
+        function showTestResult() {
+            document.getElementById('test-question-text').innerText = ""; document.getElementById('test-options').innerHTML = '';
+            const resBox = document.getElementById('test-result');
+            const resTitle = document.getElementById('test-result-title');
+            const resText = document.getElementById('test-result-text');
+            const tableBody = document.querySelector('#test-result-table tbody');
+            
+            resBox.style.display = 'block'; resBox.className = 'test-result-box';
+            
+            if (testScore === testQuestions.length) {
+                resBox.classList.add('green'); resTitle.innerText = "🎉 Идеально!"; resTitle.style.color = 'var(--success)';
+                resText.innerText = "Ты ответил на все 6 вопросов правильно. Ты настоящий эксперт по кибербезопасности!";
+            } else if (testScore >= 4) {
+                resBox.classList.add('orange'); resTitle.innerText = "⚠️ Хорошо, но есть над чем поработать"; resTitle.style.color = 'var(--warning)';
+                resText.innerText = `Ты ответил на ${testScore} из 6. Перечитай памятки на сайте, чтобы не попасться!`;
+            } else {
+                resBox.classList.add('red'); resTitle.innerText = "🚨 Высокий риск!"; resTitle.style.color = 'var(--danger)';
+                resText.innerText = `Ты ответил на ${testScore} из 6. Мошенники могут легко тебя обмануть. Обязательно изучи разделы «Схемы» и «Алгоритм»!`;
+            }
+
+            tableBody.innerHTML = '';
+            currentAnswers.forEach((ans, i) => {
+                const tr = document.createElement('tr');
+                let resultHtml = '';
+                if (ans.isCorrect) { resultHtml = `<span class="res-correct">✅ Верно</span>`; } 
+                else {
+                    const hintId = `hint-${i}-${Date.now()}`;
+                    resultHtml = `<span class="res-wrong">❌ Ошибка</span><button class="hint-btn" onclick="document.getElementById('${hintId}').style.display='block'; this.style.display='none';">Показать ответ</button><div id="${hintId}" class="hint-text">Правильно: ${ans.correctAnswer}</div>`;
+                }
+                tr.innerHTML = `<td style="width: 50%;">${i + 1}. ${ans.question}</td><td style="width: 30%;">${ans.chosen}</td><td style="width: 20%;">${resultHtml}</td>`;
+                tableBody.appendChild(tr);
+            });
+            saveHistory(testScore, currentAnswers);
+            document.getElementById('history-list').style.display = 'none';
+            document.getElementById('history-list').innerHTML = '';
+        }
+
+        function saveHistory(score, answers) {
+            let history = JSON.parse(localStorage.getItem('shieldTestHistory')) || [];
+            const date = new Date().toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            history.push({ date, score, total: 6, answers });
+            if (history.length > 5) history.shift();
+            localStorage.setItem('shieldTestHistory', JSON.stringify(history));
+        }
+
+        function toggleHistory() {
+            const listDiv = document.getElementById('history-list');
+            if (listDiv.style.display === 'block') { listDiv.style.display = 'none'; return; }
+            const history = JSON.parse(localStorage.getItem('shieldTestHistory')) || [];
+            listDiv.innerHTML = '';
+            if (history.length === 0) { listDiv.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">История пуста.</p>'; } 
+            else {
+                history.slice().reverse().forEach(h => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `<span style="color:var(--text-muted);">${h.date}</span><span style="font-weight:bold; color: ${h.score === h.total ? 'var(--success)' : (h.score >= 4 ? 'var(--warning)' : 'var(--danger)')};">${h.score} из ${h.total}</span>`;
+                    listDiv.appendChild(item);
+                });
+            }
+            listDiv.style.display = 'block';
+        }
+
+        // --- ПСИХОЛОГИЧЕСКИЙ ТЕСТ ---
+        const psyQuestions = [
+            { q: "Тебе звонит незнакомый номер и мужчина строгим голосом говорит: «Это служба безопасности банка, на вас прямо сейчас оформляют кредит». Твои действия?", options: [{ text: "Испугаюсь и буду слушать дальше", type: "panic" }, { text: "Скажу, что перезвоню сам, и положу трубку", type: "safe" }, { text: "Скажу, что у меня нет банковских карт", type: "ignore" }] },
+            { q: "Друг в Telegram присылает ссылку: «Проголосуй за меня в конкурсе, нужно совсем немного голосов!» Что сделаешь?", options: [{ text: "Перейду по ссылке, это же друг", type: "trust" }, { text: "Напишу ему в другом мессенджере или позвоню, чтобы проверить", type: "safe" }, { text: "Просто проигнорирую", type: "ignore" }] },
+            { q: "Тебе приходит СМС: «Ваша посылка задержана. Доплатите 1 рубль по ссылке, иначе её отправят обратно». Твои действия?", options: [{ text: "Оплачу, это же всего рубль", type: "trust" }, { text: "Проверю статус в официальном приложении почты или магазина", type: "safe" }, { text: "Удалю СМС и заблокирую номер", type: "ignore" }] },
+            { q: "В соцсетях тебе пишут: «Мы выплачиваем компенсацию, введите данные карты для получения 50 000 рублей». Что будешь делать?", options: [{ text: "Введу данные, деньги же лишними не бывают", type: "trust" }, { text: "Понимаю, что это развод, и жалуюсь на сообщение", type: "safe" }, { text: "Спрошу у них, откуда они взяли мой номер", type: "panic" }] }
+        ];
+
+        let psyQ = 0; let psyAnswers = [];
+
+        function loadPsyTest() { psyQ = 0; psyAnswers = []; document.getElementById('psy-result').style.display = 'none'; renderPsyQuestion(); }
+
+        function renderPsyQuestion() {
+            const qText = document.getElementById('psy-question-text');
+            const optsDiv = document.getElementById('psy-options');
+            
+            if (psyQ >= psyQuestions.length) { showPsyResult(); return; }
+            const q = psyQuestions[psyQ];
+            qText.innerText = `${psyQ + 1}. ${q.q}`;
+            optsDiv.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'action-btn'; btn.innerText = opt.text;
+                btn.onclick = () => {
+                    psyAnswers.push(opt.type);
+                    psyQ++; renderPsyQuestion();
+                };
+                optsDiv.appendChild(btn);
+            });
+        }
+
+        function showPsyResult() {
+            document.getElementById('psy-question-text').innerText = "";
+            document.getElementById('psy-options').innerHTML = '';
+            
+            const resBox = document.getElementById('psy-result');
+            const resTitle = document.getElementById('psy-result-title');
+            const resText = document.getElementById('psy-result-text');
+            
+            resBox.style.display = 'block';
+            
+            const safeCount = psyAnswers.filter(a => a === 'safe').length;
+            
+            if (safeCount >= 3) {
+                resTitle.innerText = "🛡️ Ты — Скептик";
+                resTitle.style.color = 'var(--success)';
+                resText.innerText = "У тебя отличное чувство опасности! Ты понимаешь, как работают мошенники, и не ведешься на их уловки. Продолжай в том же духе.";
+            } else if (safeCount === 2) {
+                resTitle.innerText = "⚖️ Ты — Осторожный";
+                resTitle.style.color = 'var(--warning)';
+                resText.innerText = "Ты знаешь основные правила, но иногда эмоции берут верх. Старайся всегда делать паузу перед тем, как принять решение в интернете.";
+            } else {
+                resTitle.innerText = "🎯 Ты — Легкая мишень";
+                resTitle.style.color = 'var(--danger)';
+                resText.innerText = "Мошенники будут рады такому пользователю. Ты слишком доверчив(а). Изучи раздел «Психология» и «Алгоритм», чтобы не попасться на удочку.";
+            }
+        }
+
+        // --- КАЛЬКУЛЯТОР БРОНИ ---
+        let calcState = { twoFa: false, closedProfile: false, uniquePass: false };
+
+        function resetCalc() {
+            calcState = { twoFa: false, closedProfile: false, uniquePass: false };
+            document.querySelectorAll('.calc-toggle').forEach(el => el.classList.remove('active'));
+            updateCalc();
+        }
+
+        function toggleCalc(el, id) {
+            el.classList.toggle('active');
+            const isActive = el.classList.contains('active');
+            
+            if (id === 1) calcState.twoFa = isActive;
+            if (id === 2) calcState.closedProfile = isActive;
+            if (id === 3) calcState.uniquePass = isActive;
+            
+            updateCalc();
+        }
+
+        function updateCalc() {
+            let score = 0;
+            if (calcState.twoFa) score += 34;
+            if (calcState.closedProfile) score += 33;
+            if (calcState.uniquePass) score += 33;
+            
+            const fill = document.getElementById('calc-bar-fill');
+            const text = document.getElementById('calc-result-text');
+            
+            fill.style.width = score + '%';
+            text.innerText = `Твой уровень брони: ${score}%`;
+            
+            if (score === 0) {
+                fill.style.background = 'var(--danger)';
+                text.style.color = 'var(--danger)';
+            } else if (score === 100) {
+                fill.style.background = 'var(--success)';
+                text.style.color = 'var(--success)';
+            } else {
+                fill.style.background = 'var(--warning)';
+                text.style.color = 'var(--warning)';
+            }
+        }
+    </script>
+</body>
+</html>
